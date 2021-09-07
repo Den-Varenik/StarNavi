@@ -9,6 +9,5 @@ from django.urls import path
 urlpatterns = [
     # path('admin/', admin.site.urls),
     url(settings.ADMIN_URL, admin.site.urls),
-    url(r'^api-auth/', include("rest_framework.urls", "rest_framework"), name="rest_framework"),
-    url(r'^api/post/', include("posts.api.urls"))
+    url(r'^api/account/', include("account.api.urls")),
 ]
