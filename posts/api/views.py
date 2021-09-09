@@ -1,13 +1,14 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from posts.api.serializers import PostSerializer
+
 from posts.models import Post
+from posts.api.serializers import PostSerializer
+from posts.api.permissions import IsAuthorOrReadOnly
 
 
 class PostVS(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         author = self.request.user
