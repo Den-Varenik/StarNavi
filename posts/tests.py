@@ -100,3 +100,50 @@ class PostTestCase(APITestCase):
 
         response = self.client.delete(reverse('post-detail', args=(self.post.id,)))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class LikeTestCase(APITestCase):
+
+    def setUp(self) -> None:
+        self.user1 = User.objects.create_user(username="test",
+                                              email="test@example.com",
+                                              password="Test@123")
+        self.refresh1 = RefreshToken.for_user(self.user1)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.refresh1.access_token}')
+
+        self.user2 = User.objects.create_user(username="test2",
+                                              email="test2@example.com",
+                                              password="Test@123")
+        self.refresh2 = RefreshToken.for_user(self.user2)
+
+        self.post = models.Post.objects.create(author=self.user1,
+                                               title="Test Post",
+                                               text="Lorem ipsum...",
+                                               active=True)
+
+        self.like = models.Like.objects.create(like_user=self.user1,
+                                               like_post=self.post)
+
+    def test_like_list(self):
+        response = self.client.get(reverse('like-list', args=(self.post.id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_like_create(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.refresh2.access_token}')
+
+        response = self.client.post(reverse('like-list', args=(self.post.id,)))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_like_double_create(self):
+        response = self.client.post(reverse('like-list', args=(self.post.id,)))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_like_delete(self):
+        response = self.client.delete(reverse('like-delete', args=(self.like.id,)))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_like_delete_no_liked_user(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.refresh2.access_token}")
+
+        response = self.client.delete(reverse('like-delete', args=(self.like.id,)))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
