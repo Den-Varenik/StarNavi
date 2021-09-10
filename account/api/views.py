@@ -1,7 +1,10 @@
+from django.contrib.auth.models import User
+
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAdminUser
 
 from account.api.serializers import RegistrationSerializer
 
@@ -30,3 +33,14 @@ def registration_view(request):
             data = serializer.errors
 
         return Response(data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def activity_view(request, pk):
+    last_login = User.objects.get(pk=pk).last_login
+    data = {
+        "last_login": last_login,
+        "last_request": ""
+    }
+    return Response(data)
