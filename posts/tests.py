@@ -18,8 +18,8 @@ class PostTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.refresh1.access_token}')
 
         self.user2 = User.objects.create_user(username="test2",
-                                        email="test2@example.com",
-                                        password="Test@123")
+                                              email="test2@example.com",
+                                              password="Test@123")
         self.refresh2 = RefreshToken.for_user(self.user2)
 
         self.post = models.Post.objects.create(author=self.user1,
