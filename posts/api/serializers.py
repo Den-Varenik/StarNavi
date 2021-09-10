@@ -1,3 +1,5 @@
+from abc import ABC
+
 from rest_framework import serializers
 from posts.models import Post, Like
 
@@ -16,3 +18,8 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         exclude = ("like_post",)
+
+
+class LikeAnalyticSerializer(serializers.Serializer):
+    date = serializers.DateTimeField()
+    amount = serializers.IntegerField()
